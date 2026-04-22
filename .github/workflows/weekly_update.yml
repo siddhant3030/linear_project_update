@@ -4,7 +4,16 @@ on:
   schedule:
     # Monday 9 AM IST = Monday 3:30 AM UTC
     - cron: "30 3 * * 1"
-  workflow_dispatch: # manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (print payload, don't post)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
 
 jobs:
   post-update:
@@ -18,7 +27,12 @@ jobs:
 
       - run: pip install -r requirements.txt
 
-      - run: python linear_weekly_update.py
+      - run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            python linear_weekly_update.py --dry-run
+          else
+            python linear_weekly_update.py
+          fi
         env:
           LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
           LINEAR_TEAM_KEY: ${{ secrets.LINEAR_TEAM_KEY }}
