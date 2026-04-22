@@ -1,0 +1,25 @@
+name: Linear Weekly Update
+
+on:
+  schedule:
+    # Monday 9 AM IST = Monday 3:30 AM UTC
+    - cron: "30 3 * * 1"
+  workflow_dispatch: # manual trigger from GitHub UI
+
+jobs:
+  post-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install -r requirements.txt
+
+      - run: python linear_weekly_update.py
+        env:
+          LINEAR_API_KEY: ${{ secrets.LINEAR_API_KEY }}
+          LINEAR_TEAM_KEY: ${{ secrets.LINEAR_TEAM_KEY }}
+          LINEAR_DISCORD_WEBHOOK: ${{ secrets.LINEAR_DISCORD_WEBHOOK }}
